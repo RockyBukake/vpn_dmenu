@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+cd ~/.vpn/
+readonly history=/tmp/vpn.hist
+if ip addr show tun0 &>/dev/null || [[ -f $history ]]; then
+ actionstop="STOP VPN"
+ runningvpn=" $(<$history)"
+ spacer="\n"
+else
+ actionstop=""
+ runningvpn=""
+fi
+vpnconfs=$(find ~/.vpn/ -printf "%f\n" |grep .ovpn | cut -f1 -d'.'|sort)
+if [[ "$runningvpn" != "" ]];then
+action="$(echo -e "${vpnconfs}${spacer}${actionstop}" | dmenu -sb '#e20000' -b -fn 'Terminus (TTF)-10' -l 10 -i -p "CURRENT VPN :$runningvpn")"
+else
+action="$(echo -e "${vpnconfs}" | dmenu -sb '#e20000' -b -fn 'Terminus (TTF)-10' -l 10 -i -p "SELECT A VPN :")"
+fi
+if [[ "$action" == "STOP VPN" ]]; then
+    bash -c 'sudo killall openvpn'
+    trap "rm -f $history" EXIT
+    exit 0
+fi
+if [[ " $action" == "$runningvpn" || "$runningvpn" != "" ]];then
+  echo -e "VPN ALREADY RUNNING" | dmenu -sb '#e20000' -b -fn 'Terminus (TTF)-10'  -l 10 -i
+  exit 0
+fi
+if [[ "$action" != "" ]]; then
+    echo ${action} > $history
+    bash -c 'sudo openvpn --config /etc/openvpn/scripts/update-systemd-resolved.conf --config ~/.vpn/'${action}'.ovpn';
+fi
+exit 0
