@@ -11,9 +11,9 @@ else
 fi
 vpnconfs=$(find ~/.vpn/ -printf "%f\n" |grep .ovpn | cut -f1 -d'.'|sort)
 if [[ "$runningvpn" != "" ]];then
-action="$(echo -e "${vpnconfs}${spacer}${actionstop}" | dmenu -sb '#e20000' -b -fn 'Terminus (TTF)-10' -l 10 -i -p "CURRENT VPN :$runningvpn")"
+action="$(echo -e "${vpnconfs}${spacer}${actionstop}" | dmenu -b -l 10 -i -p "CURRENT VPN :$runningvpn")"
 else
-action="$(echo -e "${vpnconfs}" | dmenu -sb '#e20000' -b -fn 'Terminus (TTF)-10' -l 10 -i -p "SELECT A VPN :")"
+action="$(echo -e "${vpnconfs}" | dmenu -b -l 10 -i -p "SELECT A VPN :")"
 fi
 if [[ "$action" == "STOP VPN" ]]; then
     bash -c 'sudo killall openvpn'
@@ -21,7 +21,7 @@ if [[ "$action" == "STOP VPN" ]]; then
     exit 0
 fi
 if [[ " $action" == "$runningvpn" || "$runningvpn" != "" ]];then
-  echo -e "VPN ALREADY RUNNING" | dmenu -sb '#e20000' -b -fn 'Terminus (TTF)-10'  -l 10 -i
+  echo -e "VPN ALREADY RUNNING" | dmenu -b -l 10 -i
   exit 0
 fi
 if [[ "$action" != "" ]]; then
